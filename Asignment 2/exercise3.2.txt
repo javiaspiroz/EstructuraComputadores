@@ -1,0 +1,71 @@
+.data
+	A: .word 	1,	1,	1,
+		.word 	1,	1,	1,
+		.word 	1,	1,	1
+		
+	B: .word 	2,	2,	2,
+		.word 	2,	2,	2,
+		.word 	2,	2	,2
+		
+	C: .word 	0,	0,	0,
+		.word 	0,	0,	0,
+		.word 	0,	0	,0
+	Dimension: .word 3
+	
+.text
+	main:
+		la $a0, A #On the register a0 is the address of matrix A
+		la $a1, B #On the register a1 is the address of matrix B
+		lw $a2,Dimension#On the register a2 is the number of rows of the matrixes
+		la $a3 C #On the register t0 is the address of the matrix C
+		li $t7 4
+		li $t8 1
+		
+		li $t0 0 #ii
+	loop1: bge $t0 $a2 end1
+		li $t1 0 #jj
+	loop2: bge $t1 $a2 end2
+		li $t2 0 #kk
+		#Gets the position of the matrix c [ii][jj]
+		mul $t5 $t0 $a2
+		add $t5 $t5 $t1
+		mul $t5 $t5 $t7
+		add $t5 $t5 $a3
+		
+	loop3: bge $t2 $a2 end3
+		
+		
+		#Gets the position of the matrix a [ii][kk]
+		mul $t3 $t0 $a2
+		add $t3 $t3 $t2
+		mul $t3 $t3 $t7
+		add $t3 $t3 $a0 
+		
+		
+		#Gets the position of the matrix b [kk][jj]
+		mul $t4 $t2 $a2
+		add $t4 $t4 $t1
+		mul $t4 $t4 $t7
+		add $t4 $t4 $a1 
+		
+		mma ($t5) ($t3) ($t4)
+		
+		
+		add $t2 $t2 $t8
+		b loop3
+		end3:
+		
+		add $t1 $t1 $t8
+		b loop2
+		end2:
+		
+		add $t0 $t0 $t8
+		b loop1
+		end1:
+		
+		
+			jr $ra
+		
+		
+		
+	

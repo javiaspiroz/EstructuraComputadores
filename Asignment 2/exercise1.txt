@@ -1,0 +1,133 @@
+madd (rs1), (rs2), (rs3){
+						co=011000,
+						nwords=1,
+						rs1= reg(25,21),
+						rs2= reg(20,16),
+						rs3= reg(15,11),
+						{
+							#RT1<--rs3
+							(SelA= 01011, MR=0, T9, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C4),
+							#RT2<--rs2
+							(SelB=10000, MR=0, T10, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C5),
+							#SR<-- RT1+RT2 
+							#MBR<-- RT1+RT2
+							(MA=1, MB=01,SelCop=1010, MC=1, SelP=11, M7=1, C7, T6, M1=0, C1),
+							#MAR<-- rs1
+							(SelA=10101, MR=0, T9, C0),
+							#M<-- MAR(rs1)
+							#M<-- MBR(SR)
+							#JTF
+							(Ta, W, BW=11, Td, A0=1, B=1, C=0),
+
+						}
+}
+
+mmul (rs1), (rs2), (rs3){
+						co=011001,
+						nwords=1,
+						rs1=reg(25,21),
+						rs2=reg(20,16),
+						rs3=reg(15,11),
+						{
+							#RT1<--rs3
+							(SelA= 01011, MR=0, T9, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C4),
+							#RT2<--rs2
+							(SelB=10000, MR=0, T10, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C5),
+							#SR<-- RT1*RT2
+							#MBR<-- RT1*RT2
+							(MA=1, MB=01,SelCop=1100, MC=1, SelP=11, M7=1, C7, T6, M1=0, C1),
+							#MAR<-- rs1
+							(SelA=10101, MR=0, T9, C0),
+							#M<-- MAR(rs1)
+							#M<-- MBR(SR)
+							#JTF
+							(Ta, W, BW=11, Td, A0=1, B=1, C=0),
+						}
+}
+
+mxch (rs1), (rs2){
+						co=011010, 
+						nwords=1,
+						rs1= reg(25,21),
+						rs2=reg(20,16),
+						{
+							#RT1<--rs2
+							(SelA=10000, MR=0, T9, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C4),
+							#MAR<--Address of rs1
+							(SelB=10101, MR=0, T10, C0),
+							#RT2<--rs1
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C5),
+							#MBR<--RT1
+							(T4, M1=0, C1),
+							#M<--MAR
+							#M<--MBR
+							(Ta, W, BW=11, Td),
+							#MAR<--rs2
+							(SelA=10000, MR=0, T9, C0),
+							#MBR<--RT2
+							(T5, M1=0, C1),
+							#M<--MBR
+							#M<--MAR
+							#JTF
+							(Ta, W, BW=11, Td, A0=1, B=1, C=0),
+						}
+}
+
+mmv (rs1), (rs2){
+						co=011011,
+						nwords=1,
+						rs1= reg(25,21),
+						rs2=reg(20,16),
+						{
+							#MBR<--rs2
+							(SelA=10000, MR=0, T9, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							#MAR<--rs1
+							(SelB=10101, MR=0, T10, C0),
+							#M<--MAR
+							#M<--MBR
+							#JTF
+							(Ta, W, BW=11, Td, A0=1, B=1, C=0),
+						}
+}
+
+mma (rs1), (rs2), (rs3){
+						co=011100,
+        						nwords=1,
+						rs1= reg(25,21),
+						rs2= reg(20,16),
+						rs3= reg(15,11),
+						{
+							#RT1<--rs2
+							(SelA=10000, MR=0, T9, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C4),
+							#RT2<--rs3
+							(SelB=01011, MR=0, T10, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C5),
+							#RT2<--RT2*RT1
+							(MA=1, MB=01,SelCop=1100, MC=1, T6, C5), 
+							#RT1<--rs1
+							(SelA=10101, MR=0, T9, C0),
+							(Ta, R, SE, BW=11, M1=1, C1),
+							(T1, C4),
+							#MBR<--RT1+RT2
+							(MA=1, MB=01,SelCop=1010, MC=1, T6, M1=0, C1),
+							#M<--MAR
+							#M<--MBR
+							#JTF
+							(Ta, W, BW=11, Td, A0=1, B=1, C=0),							
+						}
+}

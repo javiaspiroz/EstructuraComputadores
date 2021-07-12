@@ -1,0 +1,204 @@
+.kdata
+   vector:  .word rt_div0
+            .word rt_sys
+
+   msgi1:   .asciiz "FPE: / by 0\n"
+
+.ktext
+sys_prt_str: li   $1 1
+             li   $0 0
+             beq  $26 $0 fin1
+         b5: lb   $27 ($26)
+             beq  $27 $0 fin1
+             out  $27 0x1000
+             add  $26 $26 $1
+             b  b5
+       fin1: reti
+      
+sys_prt_int: li   $1 1
+             # push_byte('\0')
+             sb   $0 ($sp)
+             sub  $sp $sp $1
+         b3: # push_byte(rem(x,10)+48)
+             # x = div(x,10)
+             li   $1 10
+             rem  $27 $26 $1
+             div  $26 $26 $1
+             li   $1 48
+             add  $27 $27 $1
+             li   $1 1
+             sb   $27 ($sp)
+             sub  $sp $sp $1
+             bne  $26 $0 b3
+         f3: # print_string($sp)
+             add  $sp $sp $1
+             lb   $27 ($sp)
+             beq  $27 $0 f2
+             out  $27 0x1000
+             b f3
+         f2: reti
+
+sys_prt_ch:  li   $0 0
+         b6: beq  $27 $0 fin3
+             out  $a0 0x1000
+             b  b6
+       fin3: reti
+
+   rt_sys:   # 1.- syscall
+             move $26 $a0
+             li   $27 4
+             beq  $v0 $27 sys_prt_str
+             li   $27 1
+             beq  $v0 $27 sys_prt_int
+             li   $27 11
+             beq  $v0 $27 sys_prt_ch
+             reti 
+
+   rt_div0:  # 3.- exception
+             la   $26 msgi1
+             b    sys_prt_str
+
+
+
+.data
+	data1: .word 9
+	data2: .word 8
+	data3: .word 7 
+	msg_ok: .asciiz "OK: "
+	msg_error: .asciiz "ERROR: "
+	new_line: .asciiz "\n"
+    
+.text
+    main:  
+    
+    	la $a0 data1 #On the register a0 we will have the address of the data1
+		la $a1 data2 #On the register a1 we will have the address of the data2
+		la $a2 data3 #On the register a2 we will have the address of the data3
+		lw $s0 ($a0) #content of memory adress of $a0
+		lw $s1 ($a1) #content of memory adress of $a1
+		li $s2 1 #counter for test executed
+		li $s3 1 #to add 1 as addi does not exists
+		
+		test1:
+				madd ($a0) ($a1) ($a2)
+				li $t3 15 #We store the result in a different register to check if we have done well the instruction madd
+				lw $t4 ($a0) #content of memory adress of $a0
+			beq $t4 $t3 well_done
+				la $a0 msg_error
+				li $v0, 4
+				syscall
+				b end1
+			well_done: 
+				la $a0 msg_ok
+				li $v0, 4
+				syscall
+			end1:
+				
+				move $a0 $s2 
+				li $v0 1
+				syscall
+				add $s2 $s2 $s3
+				la $a0 new_line
+				li $v0, 4
+				syscall
+				
+		test2:
+				la $a0 data1
+				mmul ($a0) ($a1) ($a2)
+				li $t3 56
+				lw $t4 ($a0) #content of memory adress of $a0
+			beq $t4 $t3 well_done2
+				la $a0 msg_error
+				li $v0, 4
+				b end2
+			well_done2:
+				la $a0 msg_ok
+				li $v0 4
+				syscall
+			end2:
+				
+				move $a0 $s2 
+				li $v0 1
+				syscall
+				add $s2 $s2 $s3
+				la $a0 new_line
+				li $v0, 4
+				syscall
+				
+		test3:
+				la $a0 data1
+				lw $t3 ($a0) #content of memory adress of $a0
+				lw $t4 ($a1) #content of memory adress of $a1
+				mxch ($a0) ($a1)
+				lw $t5 ($a0) #content of memory adress of $a0, after executing instruction
+				lw $t6 ($a1) #content of memory adress of $a1, after executing instruction
+			bne $t4 $t5 error
+			bne $t3 $t6 error
+				la $a0 msg_ok
+				li $v0, 4
+				syscall
+				b end3
+			error:
+				la $a0 msg_error
+				li $v0 4
+				syscall
+				syscall
+			end3: 
+				
+				move $a0 $s2 
+				li $v0 1
+				syscall
+				add $s2 $s2 $s3
+				la $a0 new_line
+				li $v0, 4
+				syscall
+				
+		test4:		
+				la $a0 data1
+				la $a1 data2
+				lw $t4 ($a1)
+				mmv ($a0) ($a1)
+				lw $t3 ($a0) #content of memory adress of $a0
+			beq $t3 $t4 well_done3
+				la $a0 msg_error
+				li $v0 4
+				syscall
+				b end4
+			well_done3:
+				la $a0 msg_ok
+				li $v0 4
+				syscall
+			end4:
+				
+				move $a0 $s2 
+				li $v0 1
+				syscall
+				add $s2 $s2 $s3
+				la $a0 new_line
+				li $v0, 4
+				syscall
+        
+				#restore initial values of the memory
+				sw $s0 ($a0) 
+				sw $s1 ($a1) 
+		test5:
+				mma ($a0) ($a1) ($a2)
+				li $t3 65
+				lw $t4 ($a0) #content of memory adress of $a0
+			beq $t4 $t3 well_done4
+				la $a0 msg_error
+				li $v0 4
+				syscall
+				b end5
+			well_done4:
+				la $a0 msg_ok
+				li $v0 4
+				syscall
+			end5: 
+				
+				move $a0 $s2 
+				li $v0 1
+				syscall
+
+           # the end
+           jr $ra

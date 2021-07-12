@@ -1,0 +1,34 @@
+.data
+	A: .word 	8,	9,	6,
+		.word 	74,	8,	3,
+		.word 	6,	4,	2
+		
+	B: .word 	4,	1,	5,
+		.word 	3,	10,	4,
+		.word 	1,	0	,3
+		
+	C: .word 	0,	0,	0,
+		.word 	0,	0,	0,
+		.word 	0,	0	,0
+	Row: .word 3
+	Column: .word 3
+	msg1: .asciiz "\n"
+	msg2: .asciiz ", "
+	
+.text
+	.globl main
+	main:
+		la $a0, A #On the register a0 is the address of matrix A
+		la $a1, B #On the register a1 is the address of matrix B
+		lw $a2, Row #On the register a2 is the number of rows of the matrixes
+		lw $a3, Column #On the register a3 is the number of columns of the matrixes
+		la $t0 C #On the register t0 is the address of the matrix C
+		
+		li $t1 0 #ii
+	loop1: bge $t1 $a2 end1
+		li $t2 0 #jj
+	loop2: bge $t2 $a3 end2
+		
+		
+		
+		
